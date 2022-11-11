@@ -1,0 +1,43 @@
+{
+  "name": "sandwich",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/brwarner/sandwich.git",
+  "author": "Brook Jensen",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+  },
+  "scripts": {
+    "webpack-dev-server": "webpack-dev-server --mode development --host 0.0.0.0",
+    "prebuild": "yarn ink",
+    "build": "webpack",
+    "ink": "node ./node_modules/inkjs/dist/inkjs-compiler.js ./ink/sandwich.ink -o ./src/story.json",
+    "nodemon-ink": "nodemon -e ink --watch ink ./node_modules/inkjs/dist/inkjs-compiler.js ./ink/sandwich.ink -o ./src/story.json",
+    "prestart": "yarn ink",
+    "start": "concurrently --kill-others \"yarn nodemon-ink\" \"yarn webpack-dev-server\""
+  },
+  "devDependencies": {
+    "concurrently": "^7.5.0",
+    "nodemon": "^2.0.20",
+    "webpack-cli": "^4.10.0",
+    "@babel/core": "^7.19.6",
+    "@babel/preset-typescript": "^7.18.6",
+    "@types/jquery": "^3.5.14",
+    "@types/marked": "^4.0.7",
+    "@types/uuid": "^8.3.4",
+    "babel-loader": "^9.1.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "inkjs": "^2.2.0",
+    "jquery": "^3.6.1",
+    "marked": "^4.2.2",
+    "mini-css-extract-plugin": "^2.6.1",
+    "sass": "^1.56.0",
+    "sass-loader": "^13.1.0",
+    "uuid": "^9.0.0",
+    "webpack": "^5.74.0",
+    "webpack-dev-server": "^4.11.1"
+  }
+}

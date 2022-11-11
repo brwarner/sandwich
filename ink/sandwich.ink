@@ -1,5 +1,5 @@
 #title:Sandwich
-#byline:Brook Jensen
+#subtitle:by Brook Warner Jensen
 
 ~ SEED_RANDOM(255)
 

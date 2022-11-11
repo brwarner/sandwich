@@ -1,7 +1,5 @@
 # Sandwich
 
-A coming-of-human story about ordering your first sandwich. Still a Work in Progress.
+A first encounter; a magnificent sandwich. Written in ink.
 
-Written in ink.
-
-Play at https://brwarner.github.io/sandwich/
+Play online at https://brwarner.github.io/sandwich/
