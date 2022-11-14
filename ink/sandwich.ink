@@ -60,6 +60,8 @@ VAR PeanutButterAndJam = (PeanutButter, Jam, Nutella)
 VAR MeatSandwhich = (Eggs, Bacon, Salami, Lettuce, Tomato, Cheese, Mayo)
 VAR IllegalIngredients = (Milk, OrangeJuice)
 
+VAR offenses = 0
+
 {&You want...|Next is...|Without a doubt, you need...}
 
 - (go)
@@ -78,24 +80,30 @@ VAR IllegalIngredients = (Milk, OrangeJuice)
 ~ anySane = anySane and check_against_sandwich(newItem, PeanutButterAndJam, offender)
 ~ anySane = anySane and check_against_sandwich(newItem, MeatSandwhich, offender)
 
-TODO Vary these lines if you've made offensive choices already.
-{anySane: 
-    {~"Sure thing."|"Okay sure."|"Whatever you'd want."|He nods.}
-    ->add_ingredient(newItem)->
-    ->->
-}
-
-->increduluous(newItem, offender)->
-- ->->
++ (comply) {anySane} ->
+    ++ {offenses >= 3} ->
+        {~He can barely speak through the tears.|"Yeah fine."|"Whatever."}
+    ++ {offenses > 0} ->
+        {~"Okay."|"Fine."|"Sure."}
+    ++ ->
+        {~"Sure thing."|"Okay sure."|"Whatever you want."|He nods.}
+    -- ->add_ingredient(newItem)->
++ ->
+    ->increduluous(newItem, offender, ->comply)->
+- 
+->->
 
 = add_ingredient(item)
 ~ temp name = print_ingredient(item)
 ~ temp other = LIST_RANDOM(Ingredients)
 {
+    - item ^ (PeanutButter, Jam, Nutella, Mayo):
+        He {~spreads|slathers} the {name} over the {other:{print_ingredient(other)}|bread}.
+        {It's wet and sloppy.|It's nice and runny.|}
     - item ^ (OrangeJuice, Milk):
         {In horror|With great reservation|Shaking}, he pours the {name} all over your sandwich. 
         {other:
-            <> It splashes off the {other}.
+            <> It splashes off the {print_ingredient(other)}.
         }
     - else:
         {&
@@ -104,9 +112,9 @@ TODO Vary these lines if you've made offensive choices already.
         }
         {other: 
             {~
-                - <>, right atop the {other}
-                - <>, right above the {other}
-                - <>, careful to fit it with the {other}
+                - <>, right atop the {print_ingredient(other)}
+                - <>, right above the {print_ingredient(other)}
+                - <>, careful to fit it with the {print_ingredient(other)}
             }
         }
         <>.
@@ -138,6 +146,7 @@ His gaze rises to meet yours.
 * "I am the master here."
     And you see it. He begins to understand.
     "O--okay."
+    ~ offenses++
     ->add_ingredient(item)->
 * "Fine, fine, something else then."
 
@@ -149,9 +158,11 @@ His gaze rises to meet yours.
 
 * "I'm afraid I am."
     He sees now who he's dealing with.
+    ~ offenses++
     ->add_ingredient(item)->
 * "Do not question me."
     That gets him.
+    ~ offenses++
     ->add_ingredient(item)->
 * "I'm not. It's a joke. Don't be silly."
     "Oh--okay..."
@@ -161,6 +172,7 @@ His gaze rises to meet yours.
 
 {No talk back from him now. <>|}
 
+~ offenses++
 ->add_ingredient(item)->->
 
 = choose_ingredient_threads
@@ -186,13 +198,18 @@ His gaze rises to meet yours.
 ->check_sandwhich_sanity(item)->
 ->->
 
-= increduluous(newItem, offender)
-
+= increduluous(newItem, offender, ->comply)
+VAR lastOffenderPair = ()
 VAR complainedAbout = ()
 {complainedAbout ? offender: 
-    ->add_ingredient(newItem)->->
+    ->->comply
 }
 ~ complainedAbout += offender
+
+// Record last pair of offensive items
+~ lastOffenderPair = ()
+~ lastOffenderPair += newItem
+~ lastOffenderPair += offender
 
 {stopping:
     - "Uh. Wait. You want {print_ingredient(newItem)} with your {print_ingredient(offender)}?"
@@ -214,12 +231,33 @@ VAR complainedAbout = ()
 * {CHOICE_COUNT() < 2} "The customer is always right[."]," you inform him.
 * {CHOICE_COUNT() < 2} "I won't be questioned."
 + {CHOICE_COUNT() < 2} "Do it now."
-+ "Really? What goes with {print_ingredient(offender)}?"
-    TODO Item suggestion
-    >> TODO Generate new item suggestion
-    ->->
++ "Really? What goes with {print_ingredient(offender)}?"[] you ask{once:, almost offended by his insinuation that he is the wiser being}.
+    ~ temp suggestion = generate_suggestion(offender)
+    ++ {suggestion} ->
+        {"Uh, {print_ingredient(suggestion)}?"|"{print_ingredient(suggestion)}!"}
+        ---(suggestion_given)
+        *** "Are you sure?"[] you ask. That doesn't sound right at all.
+            He stares back blankly. "What are you even saying?"
+            You could ask him the same thing, frankly.
+            ->suggestion_given
+        +++ "Okay, let's try {print_ingredient(suggestion)} then."
+            ~ newItem = suggestion
+        +++ "No, I don't think so. {print_ingredient(newItem)}."
+            Surely you've said it enough times already.
+    ++ ->
+        He clutches his head. 
+        "You've already asked for everything that goes with {print_ingredient(offender)}. There's nothing else to put on!"
+        What... what could he be saying. That your sandwich is complete?
+        +++ He's right.[] You straighten your spine and declare.
+            "This sandwich is complete!"
+            ->->try_complete
+        +++ He couldn't be more wrong.
+            This day is far from over, for the both of you.
+            ->->
 
-- ->add_ingredient(newItem)->->
+- 
+~ offenses++
+->add_ingredient(newItem)->->
 
 = try_complete
 
@@ -263,16 +301,25 @@ VAR complainedAbout = ()
     -- (finish_and_cut) "Oh--okay, sir." Carefully, he lifts one delicate, dry slice and places it gently upon the other. 
     ->opts_sane_end
     
-* {Ingredients ^ IllegalIngredients} ->
+* {Ingredients ^ IllegalIngredients or offenses > 1} ->
 
     -- (no_serve) He shakes his head. 
     
     What is this? What is happening? This motion, all this drooping. This is... this is entirely wrong.
     
-    "Sir, I... I can't.  I simply can not serve you this sandwhich."
+    "Sir, I... I can't.  I simply can not serve you this sandwich."
     -- (illegal_finish)
     ** "But why!"
-        "It has {LIST_RANDOM(Ingredients ^ IllegalIngredients)}!"
+        +++ {Ingredients ^ IllegalIngredients} ->
+            "It has {print_ingredient(LIST_RANDOM(Ingredients ^ IllegalIngredients))}!"
+        +++ {lastOffenderPair} ->
+            ~ temp a = pop_random(lastOffenderPair)
+            ~ temp b = pop_random(lastOffenderPair)
+            "It has {print_ingredient(a)} AND {print_ingredient(b)}!"
+        +++ ->
+            // This should never happen but just in case.
+            "I just... I can't!"
+        --- <> he screams. 
         ->illegal_finish
     ** "We've been over this!"
     ** "I am in charge. I have the power."
@@ -284,13 +331,12 @@ VAR complainedAbout = ()
         ->leave
     ** "You'll rue this day."
         ->attack
-        
-TODO Insane sandwhich ending
     
 * ->
 
-    He nods. "Sure, man."
-    Sure. Sure man. Sure <i>man</i>. He sees you as one of them.
+    He nods{offenses > 0:, though he seems a little nervous about it. Probably just jitters, he is face to face with excellence after all}. "Sure, man."
+    
+    Man. Sure <i>man</i>. He sees you as one of them.
     
     -- (opts_sane_end)
     ** "This wasn't my first[."]," you explain, pressing your advantage.
@@ -311,11 +357,11 @@ TODO Insane sandwhich ending
     Only one task left.
     
     ** [Eat.]
-        You peel open the sandwhich and slam it against your face, the mandibles on either of your cheeks opening to make short work of its proteins. 
+        You peel open the sandwhich and slam it against your face, the mandibles on either of your cheeks opening to make short work of it. 
         
         Another job well done.
         
-- ->END
+- ->end
 
 = attack
 
@@ -325,7 +371,7 @@ And this man, this proprietor, this mere appendage of an absent, feeble master, 
 
 <i>World</i> famous? <b>World!?!</b> Now it is your world. And they will answer for their crimes.
 
-->END
+->end
 
 = leave
 
@@ -335,6 +381,11 @@ You ordered a great sandwhich; this no one can deny. No one would dare! And yet.
 
 You return to your ship and leave this world. You didn't want to engulf it in your empire anyway.
 
+->end
+
+= end
+
+<b>THE END</b>
 ->END
 
 === function check_against_sandwich(newItem, sandwich, ref offender)
@@ -369,3 +420,19 @@ You return to your ship and leave this world. You didn't want to engulf it in yo
         ~ return "Orange Juice"
 }
 ~ return item
+
+=== function generate_suggestion(item)
+~ temp suggestion = ()
+~ suggestion = find_suggestion_in(item, MeatSandwhich)
+{suggestion:
+    ~ return suggestion
+}
+~ return find_suggestion_in(item, PeanutButterAndJam)
+
+=== function find_suggestion_in(item, sandwich)
+{
+    - sandwich ? item:
+        ~ return LIST_RANDOM(sandwich ^ LIST_INVERT(Ingredients))
+    - else:
+        ~ return ()
+}
