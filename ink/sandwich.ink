@@ -2,9 +2,9 @@
 #subtitle:by Brook Warner Jensen
 
 // Fixed seed for testing
-{not is_browser():
-    ~ SEED_RANDOM(255)
-}
+//{not is_browser():
+//    ~ SEED_RANDOM(255)
+//}
 
 At long last, you've arrived. 
 
