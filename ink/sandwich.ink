@@ -2,29 +2,35 @@
 #subtitle:by Brook Warner Jensen
 
 // Fixed seed for testing
-//{not is_browser():
-//    ~ SEED_RANDOM(255)
-//}
+{not is_browser():
+    ~ SEED_RANDOM(255)
+}
 
 At long last, you've arrived. 
 
 * Earl's World Famous Deli
 -
 
-World famous. <i>World</i>. Famous. Deli. 
+World famous. <i>World</i>. Famous. Deli.
 
-You have spent the last sixteen of this world's months observing them from your covert reconnisance craft in orbit. Studying their language, culture, security, and now, outfitted with incredible knowledge about their ways you have graduated to the next phase: integrating into their population. Participating in their rituals. And here, now, on a street so critical to their identity they simply call it "Main Street" you are ready to order a sandwich.
+You have spent the last sixteen of this planet's months observing its people from your covert 
 
-You have witnessed dozens--no, hundreds of sandwich orders thus far, and it is your belief that what you order will put every one of them to shame.
+You have spent the last sixteen of this world's months observing them from your covert reconnaissance craft in orbit. You've studied their language, culture, military tactics, and now, replete with the splendid and precise intelligence of their ways you have graduated to the next phase of your infiltration. 
 
-The line peels off, one human at a time, until finally it is you, standing face to face with the proprietor.
+Now, on the corner of a street so critical to their way of life they simply call it "Main", you are ready to order a sandwich.
 
-His nametag reads: Fred, but you understand that by custom you should see him as a mere appendage of his master. Earl.
+* [You've trained for this.]
 
-He looks up from the counter. Nods.
+You have witnessed dozens--no, hundreds!--of sandwich orders thus far, carefully studying every minute detail of this oft-practiced but dignified ritual. What it's purpose is, you can't say, but it is your belief that what you order today will put every prior one to shame.
+
+The line peels off, one human at a time, until you are face to face with the proprietor, a tall, lanky young creature whose awkward features remind you of one of your own.
+
+His nametag reads: Fred, but you understand that by custom you should see and refer to him as a mere appendage of his master: Earl.
+
+He looks up from the counter and nods.
 
 -(intro)
-* (nod_1) [Nod back.]You nod.
+* (nod_1) [Nod back.]You nod, curt and firm.
     He nods back.
     ->intro
 * (nod_2) {nod_1} [Nod again.] You give him another nod.
@@ -34,7 +40,7 @@ He looks up from the counter. Nods.
     "Uh," he says, scratching his cheek. "Can I get you something, sir?"
     ->intro
 * (vend) {not nod_2} "Vend me[."]," you bark.
-    "Uh." He clears his head. "What?"
+    "Uh." He scratches his head. "What?"
     <-vent2
     <-intro
     ->DONE
@@ -49,7 +55,7 @@ He looks up from the counter. Nods.
     
 -
 
-He extracts from the warmer two slices of bread.
+He extracts from the toaster two slices of clean bread.
 
 This is it.
 
@@ -70,7 +76,7 @@ VAR offenses = 0
 - (go)
 
 <-choose_ingredient_threads
-+ "This sandwhich is complete!"
++ "This sandwhich is complete!"[] you exclaim.
     ->try_complete
 
 = check_sandwhich_sanity(newItem)
@@ -127,7 +133,7 @@ VAR offenses = 0
 ->->
 
 = illegal_item(item)
-{|->second}
+{|->second|->third}
 His gaze rises to meet yours.
 
 "Uh. What?"
@@ -143,7 +149,7 @@ His gaze rises to meet yours.
 "S--sir... you can't put {name} on a sandwich."
 
 -(opts)
-* "Do you not sell {name}?"
+* "Do you not sell {name}?"[] you ask.
     "Well, we do but..."
     ->opts
 * "I am the master here."
@@ -180,6 +186,9 @@ His gaze rises to meet yours.
 
 = choose_ingredient_threads
 ~ temp unusedIngredients = LIST_INVERT(Ingredients)
+{assemble < 3:
+    ~ unusedIngredients -= IllegalIngredients
+}
 <-random_ingredient_choices(unusedIngredients)
 ->DONE
 
@@ -299,9 +308,9 @@ VAR complainedAbout = ()
         There's something off-putting about the way this appendage is looking at you. What has happened?
         ->confused_empty
     ++ "Actually, there's more! Much more!"
-        He bits his lip. Nervously? No. In anticipation. Anticipation for... ->assemble.go
+        He bites his lip. Nervously? No. In anticipation. Anticipation for... ->assemble.go
     
-    -- (finish_and_cut) "Oh--okay, sir." Carefully, he lifts one delicate, dry slice and places it gently upon the other. 
+    -- (finish_and_cut) "Oh--okay, sir." Gingerly, he lifts one delicate, dry slice and places it upon the other. 
     ->opts_sane_end
     
 * {Ingredients ^ IllegalIngredients or offenses > 1} ->
@@ -357,6 +366,8 @@ VAR complainedAbout = ()
         
     -- You stroll out, sandwhich in hand and pride in your heart. You have made first contact with this species and even ingratiated yourself to their servile classes.
     
+    You admire it, your beautiful creation. ->describe_sandwich->
+    
     Only one task left.
     
     ** [Eat.]
@@ -368,9 +379,9 @@ VAR complainedAbout = ()
 
 = attack
 
-You transmit immediately and within minutes armed personnel carriers lying in wait in hyperspace jump into orbit and spill their soldiers over the globe. Cities fall, infrastructure crumbles, and orphans of the invasion are scattered in the wind as families are torn to shreds in warfare.
+You transmit immediately and within minutes armed personnel carriers lying in wait in hyperspace jump into orbit and spill their soldiers over this impudent world. Fields burn, cities crumble, and orphans of the invasion scattered to the wind as families are torn to shreds in combat.
 
-And this man, this proprietor, this mere appendage of an absent, feeble master, him you save for last. 
+And this man, this proprietor, this mere appendage of an absent, feeble master, him you will save for last. 
 
 <i>World</i> famous? <b>World!?!</b> Now it is your world. And they will answer for their crimes.
 
@@ -382,9 +393,24 @@ You storm out, incensed. Is this how these beings treat their own kind, like dev
 
 You ordered a great sandwhich; this no one can deny. No one would dare! And yet.
 
-You return to your ship and leave this world. You didn't want to engulf it in your empire anyway.
+You return to your ship and leave this world. You didn't want it in your empire anyway.
 
 ->end
+
+= describe_sandwich
+{
+    - Ingredients == (PeanutButter, Jam):
+        A peanut butter and jam sandwich, complete with two slices of soggy bread, a staple of every human child. You wonder if they will taste the same?
+    - Ingredients == (Nutella):
+        Nothing but a slab of thick chocolate spread soaking two soggy slices of bread. You've witnessed many a human child threaten to kill for this; a useful factoid to keep handy for their eventual recruitment to subjugate their parents.
+    - Ingredients ^ (PeanutButter, Jam) and LIST_COUNT(Ingredients) == 3:
+        A peanut butter and jam sandwich, complete with its star-crossed lover: {Ingredients - (PeanutButter, Jam)}. Nothing could be more harmonious.
+    - Ingredients == (Bacon, Lettuce, Tomato):
+        A classic Bee El Tee, which you understand to be an equisite French dish. Or was it Mexican? Doesn't matter.
+    - Ingredients ? Eggs:
+        A sandwich with fresh ovum. Perhaps one day you'll have sufficiently gained their trust to secure a sandwich with one of their own species ovums, but the unfertilized egg of their domestic foul is just as well for now. {LIST_COUNT(Ingredients) > 1: It goes swell with {LIST_RANDOM(Ingredients - Eggs)}.} 
+}
+->->
 
 = end
 
@@ -439,3 +465,6 @@ You return to your ship and leave this world. You didn't want to engulf it in yo
     - else:
         ~ return ()
 }
+
+=== function is_browser()
+~ return false
